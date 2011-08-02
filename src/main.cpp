@@ -77,7 +77,7 @@ int main (int argc, char *argv[])
   bool generate_report = false;
   bool no_lines = false;
   bool debug_info = true;
-  bool troll_copyright = false;
+  bool qt_copyright = false;
   QString file_name = 0;
 
   QStringList args = app.arguments ();
@@ -101,7 +101,7 @@ int main (int argc, char *argv[])
         debug_info = false;
 
       else if (arg == QLatin1String ("--qt"))
-        troll_copyright = true;
+        qt_copyright = true;
 
       else if (file_name.isEmpty ())
 	file_name = arg;
@@ -142,7 +142,7 @@ int main (int argc, char *argv[])
 
   CppGenerator gen (p, grammar, aut, generate_report);
   gen.setDebugInfo (debug_info);
-  gen.setCopyright (troll_copyright);
+  gen.setCopyright (qt_copyright);
   gen ();
 
   if (generate_dot)
