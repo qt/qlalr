@@ -560,7 +560,6 @@ void Automaton::visitReadNode (ReadNode node)
   for (ReadsGraph::edge_iterator edge = node->begin (); edge != node->end (); ++edge)
     {
       ReadsGraph::iterator r = *edge;
-      Name nt = r->data.nt;
 
       visitReadNode (r);
 
@@ -678,7 +677,6 @@ void Automaton::visitIncludeNode (IncludeNode node)
   for (IncludesGraph::edge_iterator edge = node->begin (); edge != node->end (); ++edge)
     {
       IncludesGraph::iterator r = *edge;
-      Name nt = r->data.nt;
 
       visitIncludeNode (r);
 
