@@ -58,7 +58,7 @@ Recognizer::Recognizer (Grammar *grammar, bool no_lines):
 Recognizer::~Recognizer()
 {
   if (stack_size)
-    ::qFree(state_stack);
+    ::free(state_stack);
 }
 
 inline void Recognizer::reallocateStack()
@@ -71,9 +71,9 @@ inline void Recognizer::reallocateStack()
   sym_stack.resize (stack_size);
 
   if (! state_stack)
-    state_stack = reinterpret_cast<int*> (::qMalloc(stack_size * sizeof(int)));
+    state_stack = reinterpret_cast<int*> (::malloc(stack_size * sizeof(int)));
   else
-    state_stack = reinterpret_cast<int*> (::qRealloc(state_stack, stack_size * sizeof(int)));
+    state_stack = reinterpret_cast<int*> (::realloc(state_stack, stack_size * sizeof(int)));
 }
 
 int Recognizer::nextToken()
