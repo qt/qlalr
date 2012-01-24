@@ -1,7 +1,6 @@
 -----------------------------------------------------------------------------
 --
 -- Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
--- All rights reserved.
 -- Contact: http://www.qt-project.org/
 --
 -- This file is part of the QLALR project on Qt Labs.
@@ -30,6 +29,7 @@
 -- Other Usage
 -- Alternatively, this file may be used in accordance with the terms and
 -- conditions contained in a signed written agreement between you and Nokia.
+--
 --
 --
 --
@@ -78,7 +78,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
 ** Contact: http://www.qt-project.org/
 **
 ** This file is part of the QLALR project on Qt Labs.
@@ -107,6 +106,7 @@
 ** Other Usage
 ** Alternatively, this file may be used in accordance with the terms and
 ** conditions contained in a signed written agreement between you and Nokia.
+**
 **
 **
 **
@@ -192,7 +192,6 @@ protected:
 /****************************************************************************
 **
 ** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
 ** Contact: http://www.qt-project.org/
 **
 ** This file is part of the QLALR project on Qt Labs.
@@ -221,6 +220,7 @@ protected:
 ** Other Usage
 ** Alternatively, this file may be used in accordance with the terms and
 ** conditions contained in a signed written agreement between you and Nokia.
+**
 **
 **
 **
