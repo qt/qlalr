@@ -1,0 +1,687 @@
+-----------------------------------------------------------------------------
+--
+-- Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
+-- All rights reserved.
+-- Contact: http://www.qt-project.org/
+--
+-- This file is part of the utils of the Qt Toolkit.
+--
+-- $QT_BEGIN_LICENSE:LGPL$
+-- GNU Lesser General Public License Usage
+-- This file may be used under the terms of the GNU Lesser General Public
+-- License version 2.1 as published by the Free Software Foundation and
+-- appearing in the file LICENSE.LGPL included in the packaging of this
+-- file. Please review the following information to ensure the GNU Lesser
+-- General Public License version 2.1 requirements will be met:
+-- http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+--
+-- In addition, as a special exception, Nokia gives you certain additional
+-- rights. These rights are described in the Nokia Qt LGPL Exception
+-- version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+--
+-- GNU General Public License Usage
+-- Alternatively, this file may be used under the terms of the GNU General
+-- Public License version 3.0 as published by the Free Software Foundation
+-- and appearing in the file LICENSE.GPL included in the packaging of this
+-- file. Please review the following information to ensure the GNU General
+-- Public License version 3.0 requirements will be met:
+-- http://www.gnu.org/copyleft/gpl.html.
+--
+-- Other Usage
+-- Alternatively, this file may be used in accordance with the terms and
+-- conditions contained in a signed written agreement between you and Nokia.
+--
+--
+--
+--
+--
+-- $QT_END_LICENSE$
+--
+-----------------------------------------------------------------------------
+
+%merged_output qlalr_parser.cpp
+%token_prefix T_
+
+%token START
+%token PREC
+%token TOKEN
+%token LEFT
+%token RIGHT
+%token NONASSOC
+
+%token TOKEN_PREFIX
+%token MERGED_OUTPUT
+%token PARSER
+%token DECL_FILE
+%token IMPL_FILE
+%token EXPECT
+%token EXPECT_RR
+
+%token IDENTIFIER
+%token STRING_LITERAL
+%token SEMICOLON
+%token COLON
+%token COLON_COLON_EQUAL
+%token BAR
+%token ERROR
+
+%start Goal
+
+/:
+#include "qlalr.h"
+#include "cppgenerator.h"
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+
+struct Parser: $table {
+    Options *flags;
+    int yytos;
+    int yystateStack[128];
+    QString yysymStack[128];
+    QString yylval;
+    Grammar G;
+    Automaton A;
+
+    int terminalKind;
+    Token::Assoc assoc;
+    int prec;
+    QSet<QString> stringSet;
+
+    int yylineno;
+    QChar yychar;
+    QString source;
+    QString yytext;
+    const QChar *yycode;
+
+    inline static bool isIdentChar(const QChar &ch)
+    {
+        if (ch.isLetterOrNumber())
+            return true;
+        else {
+            switch (ch.unicode()) {
+            case '-':
+            case '_':
+            case '.':
+                return true;
+            default:
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    inline void yyinp()
+    {
+        yychar = *yycode++;
+
+        if (yychar == QLatin1Char('\n'))
+            ++yylineno;
+    }
+
+    int yylex();
+    void yyreduce(int ruleno);
+
+    QString &sym(int n) {
+        return yysymStack[yytos + n - 1];
+    }
+
+    const QString &string(int n) {
+        return yysymStack[yytos + n - 1];
+    }
+
+    QString lineInfo()
+    {
+        if (flags->no_lines)
+            return QString();
+
+        return QLatin1String ("\n#line ") + QString::number(yylineno) + " \"" + flags->filename+ "\"\n";
+    }
+
+    QString expand(const QString &var, bool *expanded)
+    {
+        *expanded = true;
+        if (var == QLatin1String("rule_number") && ! G.rules.isEmpty())
+            return QString::number(G.currentRule()->index);
+        else if (var == QLatin1String("table"))
+            return flags->table_name;
+        else if (var == QLatin1String("header"))
+            return flags->table_name.toLower() + QLatin1String("_p.h");
+        else if (var == QLatin1String("rule") && ! G.rules.isEmpty())
+            return G.currentRule()->lhs;
+        expanded = false;
+        return var;
+    }
+
+    Parser(Options *flags)
+        : flags(flags)
+        , yylineno(1)
+        , yycode(0)
+    {
+        QFile file(flags->filename);
+        if (file.open(QFile::ReadOnly)) {
+            source = QTextStream(&file).readAll();
+            yycode = source.unicode();
+            yychar = QLatin1Char('\n');
+        }
+    }
+
+    bool yyparse()
+    {
+        if (! yycode) {
+            fprintf(stderr, "qlalr: no input file\n");
+            return false;
+        }
+        int yyaction = 0;
+        int yytoken = -1;
+
+        terminalKind = 0;
+        assoc = Token::Nonassoc;
+        prec = -1;
+
+        yytos = -1;
+
+        do {
+            yystateStack[++yytos] = yyaction;
+            if (yytoken == -1 && action_index[yyaction] != -TERMINAL_COUNT)
+                yytoken = yylex();
+            yyaction = t_action(yyaction, yytoken);
+            if (yyaction > 0) {
+                if (yyaction == ACCEPT_STATE) {
+                    --yytos;
+                    return true;
+                }
+                yysymStack[yytos] = yylval;
+                yytoken = -1;
+            } else if (yyaction < 0) {
+                int ruleno = -yyaction - 1;
+                yytos -= rhs[ruleno];
+                yyreduce(ruleno);
+                yyaction = nt_action(yystateStack[yytos], lhs[ruleno] - TERMINAL_COUNT);
+            }
+        } while (yyaction);
+        fprintf(stderr, "syntax error at line %d\n", yylineno);
+        return false;
+    }
+};
+:/
+
+
+/.
+#include "cppgenerator.h"
+#include <QtCore/QDebug>
+
+void Parser::yyreduce(int ruleno)
+{
+    switch (ruleno) {
+./
+
+Goal ::= Specification ;
+/.
+case $rule_number: {
+    // check the grammar
+    QSet<QString> undefinedSymbols;
+    foreach (Rule *r, G.rules) {
+        foreach (const QString &symbol, r->rhs) {
+            if (G.indexOfName(symbol) == -1)
+                undefinedSymbols.insert(symbol);
+        }
+    }
+
+    foreach (const QString &u, undefinedSymbols) {
+        fprintf(stderr, "error: undefined symbol %s\n", qPrintable(u));
+    }
+
+    if (! undefinedSymbols.isEmpty())
+        break;
+
+    // compute the qlalr items
+    QVector<DottedItem> kernel;
+    foreach (Rule *r, G.alternatives.value(G.acceptSymbol()))
+        kernel.push_back(DottedItem(r, 0));
+    qSort(kernel);
+    A.start = A.getState(kernel);
+    Q_ASSERT(A.start->index != -1);
+    QVector<State *> wl;
+    wl.push_back(A.start);
+    QSet<State *> visited;
+    while (! wl.empty()) {
+        State *state = wl.front();
+        wl.pop_front();
+        if (! visited.contains(state)) {
+            visited.insert(state);
+            foreach (State *n, A.next(state))
+                wl.push_back(n);
+        }
+    }
+
+    A.gen(&G);
+
+#ifdef QLALR_DEBUG
+    foreach (const QString &nt, G.nullables)
+        fprintf(stderr, "%s is nullable\n", qPrintable(nt));
+#endif
+
+    CppGenerator gen(flags, &G, &A, false);
+    gen.setDebugInfo(! flags->no_debug);
+    gen.setCopyright(flags->qt);
+
+    gen();
+    if (flags->verbose) {
+        G.dump(stdout);
+        A.dump(&G, stdout);
+    }
+} break;
+./
+
+Specification ::= DeclarationList StartDeclaration RuleList ;
+
+DeclarationList ::= Declaration ;
+DeclarationList ::= DeclarationList Declaration ;
+
+RuleList ::= Rule ;
+RuleList ::= RuleList Rule ;
+
+Declaration ::= Directive ;
+Declaration ::= TokenDeclaration ;
+
+Directive ::= TOKEN_PREFIX IDENTIFIER ;
+/.
+case $rule_number: {
+    flags->token_prefix = string(2);
+} break;
+./
+
+Directive ::= MERGED_OUTPUT IDENTIFIER ;
+/.
+case $rule_number: {
+    flags->merged_output = string(2);
+} break;
+./
+
+Directive ::= PARSER IDENTIFIER ;
+/.
+case $rule_number: {
+    flags->table_name = string(2);
+} break;
+./
+
+Directive ::= DECL_FILE IDENTIFIER ;
+/.
+case $rule_number: {
+    flags->decl_file_name = string(2);
+} break;
+./
+
+Directive ::= IMPL_FILE IDENTIFIER ;
+/.
+case $rule_number: {
+    flags->impl_file_name = string(2);
+} break;
+./
+
+Directive ::= EXPECT IDENTIFIER ;
+/.
+case $rule_number: {
+    flags->expected_shift_reduce = string(2).toInt();
+} break;
+./
+
+Directive ::= EXPECT_RR IDENTIFIER ;
+/.
+case $rule_number: {
+    flags->expected_reduce_reduce = string(2).toInt();
+} break;
+./
+
+TokenKind ::= TOKEN ;
+/.
+case $rule_number: {
+    terminalKind = T_TOKEN;
+    assoc = Token::Nonassoc;
+} break;
+./
+
+TokenKind ::= LEFT ;
+/.
+case $rule_number: {
+    terminalKind = T_LEFT;
+    assoc = Token::Left;
+    ++prec;
+} break;
+./
+
+TokenKind ::= RIGHT ;
+/.
+case $rule_number: {
+    terminalKind = T_RIGHT;
+    assoc = Token::Right;
+    ++prec;
+} break;
+./
+
+TokenKind ::= NONASSOC ;
+/.
+case $rule_number: {
+    terminalKind = T_NONASSOC;
+    assoc = Token::Nonassoc;
+    ++prec;
+} break;
+./
+
+TokenDeclaration ::= TokenKind TokenList ;
+
+TokenList ::= Token ;
+TokenList ::= TokenList Token ;
+
+Token ::= IDENTIFIER ;
+/.
+case $rule_number: {
+    G.enterToken(string(1), QString(), assoc, terminalKind == T_TOKEN ? -1 : prec);
+} break;
+./
+
+Token ::= IDENTIFIER STRING_LITERAL ;
+/.
+case $rule_number: {
+    G.enterToken(string(1), string(2), assoc, terminalKind == T_TOKEN ? -1 : prec);
+} break;
+./
+
+StartDeclaration ::= START IDENTIFIER ;
+/.
+case $rule_number: {
+    G.setStartSymbol(string(2));
+} break;
+./
+
+Alternatives ::= Rhs ;
+Alternatives ::= Alternatives bar Rhs ;
+
+bar ::= BAR ;
+/.
+case $rule_number: {
+    G.finishRule();
+    QString lhs = G.currentRule()->lhs;
+    G.startRule(lhs);
+} break;
+./
+
+Rule ::= Lhs Sep Alternatives SEMICOLON ;
+/.
+case $rule_number: {
+    G.finishRule();
+} break;
+./
+
+Sep ::= COLON ;
+Sep ::= COLON_COLON_EQUAL ;
+
+Lhs ::= IDENTIFIER ;
+/.
+case $rule_number: {
+    G.startRule(string(1));
+} break;
+./
+
+Rhs ::= ;
+Rhs ::= Prec ;
+Rhs ::= SymbolList Prec ;
+Rhs ::= SymbolList ;
+
+Prec ::= PREC IDENTIFIER ;
+/.
+case $rule_number: {
+    const int precTokenIndex = G.indexOfToken(string(2));
+    if (precTokenIndex == -1)
+        fprintf(stderr, "warning: undefined token %s\n", qPrintable(string(2)));
+    else
+        G.currentRule()->precToken = precTokenIndex;
+} break;
+./
+
+SymbolList ::= Symbol ;
+SymbolList ::= SymbolList Symbol ;
+
+Symbol ::= IDENTIFIER ;
+/.
+case $rule_number: {
+    G.enterSymbol(string(1));
+} break;
+./
+
+/.
+    } // switch
+}
+./
+
+
+/.
+
+int Parser::yylex()
+{
+again:
+    while (yychar.isSpace())
+        yyinp();
+
+    if (yychar.isNull())
+        return EOF_SYMBOL;
+
+    const QChar ch = yychar;
+    yyinp();
+
+    if (ch == QLatin1Char('%') && yychar == QLatin1Char('%')) {
+        yyinp();  // skip %%
+        goto again;
+    } else if (ch == QLatin1Char('%') && isIdentChar(yychar)) {
+        yytext.clear();
+        while (isIdentChar(yychar)) {
+            yytext += yychar;
+            yyinp();
+        }
+        if (yytext == QLatin1String("token_prefix")) return T_TOKEN_PREFIX;
+        else if (yytext == QLatin1String("merged_output")) return T_MERGED_OUTPUT;
+        else if (yytext == QLatin1String("token")) return T_TOKEN;
+        else if (yytext == QLatin1String("start")) return T_START;
+        else if (yytext == QLatin1String("parser")) return T_PARSER;
+        else if (yytext == QLatin1String("decl")) return T_DECL_FILE;
+        else if (yytext == QLatin1String("impl")) return T_IMPL_FILE;
+        else if (yytext == QLatin1String("expect")) return T_EXPECT;
+        else if (yytext == QLatin1String("expect-rr")) return T_EXPECT_RR;
+        else if (yytext == QLatin1String("left")) return T_LEFT;
+        else if (yytext == QLatin1String("right")) return T_RIGHT;
+        else if (yytext == QLatin1String("nonassoc")) return T_NONASSOC;
+        else if (yytext == QLatin1String("prec")) return T_PREC;
+        fprintf(stderr, "unrecognized directive %s\n", qPrintable(yytext));
+        return T_ERROR;
+    } else if ((ch == QLatin1Char('-') && yychar == QLatin1Char('-')) ||
+               (ch == QLatin1Char('/') && yychar == QLatin1Char('/'))) {
+        // skip single-line comments
+        for (; ! yychar.isNull(); yyinp()) {
+            if (yychar == QLatin1Char('\n'))
+                break;
+        }
+        goto again;
+    } else if (ch == QLatin1Char('/') && yychar == QLatin1Char('*')) {
+        yyinp(); // skip *
+        int startLine = yylineno;
+        while (! yychar.isNull()) {
+            if (yychar == QLatin1Char('*')) {
+                yyinp();
+                if (yychar == QLatin1Char('/')) {
+                    yyinp();
+                    goto again;
+                }
+            } else {
+                yyinp();
+            }
+        }
+        fprintf(stderr, "%s:%d: error: unterminated multiline comment\n",
+                qPrintable(flags->filename), startLine);
+    } else if (ch == QLatin1Char('/') && (yychar == QLatin1Char(':') ||
+                                          yychar == QLatin1Char('.'))) {
+        const QChar terminator = yychar;
+        yyinp(); // skip ':' or '.'
+        yytext.clear();
+        int startLine = yylineno;
+        while (! yychar.isNull()) {
+            if (yychar == QLatin1Char('$')) {
+                yyinp(); // skip '$'
+                if (isIdentChar(yychar)) {
+                    QString word;
+                    for (; isIdentChar(yychar); yyinp())
+                        word += yychar;
+
+                    bool isKeyword = false;
+                    const QString expanded = expand(word, &isKeyword);
+
+                    if (isKeyword)
+                        yytext += expanded;
+                    else {
+                        yytext += QLatin1Char('$');
+                        yytext += word;
+                    }
+                } else {
+                    yytext += QLatin1Char('$');
+                }
+            }
+            if (yychar == terminator) {
+                yyinp();
+                if (yychar == QLatin1Char('/')) {
+                    yyinp();
+                    if (yychar.isNull() || yychar.isSpace()) {
+                        if (terminator == QLatin1Char(':')) {
+                            flags->decl_text += yytext;
+                            goto again;
+                        } else if (terminator == QLatin1Char('.')) {
+                            flags->impl_text += yytext;
+                            goto again;
+                        }
+                        yytext += terminator;
+                        yytext += yychar;
+                    } else {
+                        yytext += yychar;
+                    }
+                } else {
+                    yytext += terminator;
+                }
+            } else {
+                yytext += yychar;
+                yyinp();
+            }
+        }
+        fprintf(stderr, "%s:%d: error: unterminated code block\n",
+                qPrintable(flags->filename), startLine);
+    } else {
+        switch (ch.unicode()) {
+        case '"':
+            yytext.clear();
+            while (! yychar.isNull()) {
+                if (yychar == QLatin1Char('\n')) {
+                    break;
+                } else if (yychar == QLatin1Char('"')) {
+                    yyinp();
+                    yylval = yytext;
+                    return T_STRING_LITERAL;
+                } else if (yychar == QLatin1Char('\\')) {
+                    yytext += yychar;
+                    yyinp();
+                    if (! yychar.isNull()) {
+                        yytext += yychar;
+                        yyinp();
+                    }
+                } else {
+                    yytext += yychar;
+                    yyinp();
+                }
+            }
+            fprintf(stderr, "%s:%d: error: unterminated string literal\n",
+                    qPrintable(flags->filename), yylineno);
+            return T_ERROR;
+
+        case ':':
+            if (yychar == QLatin1Char(':')) {
+                yyinp();
+                if (yychar == QLatin1Char('=')) {
+                    yyinp();
+                    return T_COLON_COLON_EQUAL;
+                }
+                return T_ERROR; // recognized ::
+            }
+            return T_COLON;
+
+        case ';':
+            return T_SEMICOLON;
+
+        case '|':
+            return T_BAR;
+
+        default:
+            if (isIdentChar(ch)) {
+                yytext.clear();
+                yytext += ch;
+                while (isIdentChar(yychar)) {
+                    yytext += yychar;
+                    yyinp();
+                }
+                yylval = yytext;
+                return T_IDENTIFIER;
+            }
+
+        } // switch
+    }
+
+    return T_ERROR;
+}
+./
+
+/.
+#include <QtCore/QCoreApplication>
+#include <QtCore/QStringList>
+#include <cstdlib>
+
+static void help_me ()
+{
+    fprintf(stderr, "Usage: qlalr [options] [input file name]\n\n"
+            "  --help, -h\t\tdisplay this help and exit\n"
+            "  --verbose, -v\t\tverbose output\n"
+            "  --no-debug\t\tno debug information\n"
+            "  --no-lines\t\tno #line directives\n"
+            "  --qt\t\t\tadd the Qt copyright header and Qt-specific types and macros\n");
+    exit(0);
+}
+
+int main(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+
+    QStringList args = app.arguments();
+    args.removeFirst();
+
+    Options options;
+    foreach (const QString &arg, args) {
+        if (arg == QLatin1String("--verbose") || arg == QLatin1String("-v"))
+            options.verbose = true;
+        else if (arg == QLatin1String("--qt"))
+            options.qt = true;
+        else if (arg == QLatin1String("--no-lines"))
+            options.no_lines = true;
+        else if (arg == QLatin1String("--no-debug"))
+            options.no_debug = true;
+        else if (arg == QLatin1String("--help") || arg == QLatin1String("-h"))
+            help_me();
+        else if (options.filename.isEmpty())
+            options.filename = arg;
+        else
+            help_me();
+    }
+
+    if (options.filename.isEmpty())
+        help_me();
+
+    Parser parser(&options);
+    if (! parser.yyparse())
+        return EXIT_FAILURE;
+    return 0;
+}
+./

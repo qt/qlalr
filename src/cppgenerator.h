@@ -42,57 +42,88 @@
 #ifndef CPPGENERATOR_H
 #define CPPGENERATOR_H
 
-#include "lalr.h"
+#include "qlalr.h"
 #include "compress.h"
+#include <QtCore/QTextStream>
 
-class Grammar;
-class Automaton;
-class Recognizer;
+struct Grammar;
+struct Automaton;
+
+struct Options {
+    QString filename;
+    QString merged_output;
+    QString table_name;
+    QString decl_file_name;
+    QString impl_file_name;
+    QString token_prefix;
+    QString decl_text;
+    QString impl_text;
+    int expected_shift_reduce;
+    int expected_reduce_reduce;
+    bool verbose: 1;
+    bool no_lines: 1;
+    bool no_debug: 1;
+    bool qt: 1;
+
+    Options()
+        : expected_shift_reduce(0)
+        , expected_reduce_reduce(0)
+        , verbose(false)
+        , no_lines(false)
+        , no_debug(false)
+        , qt(false)
+    {
+        table_name = "parser_table";
+    }
+
+    QString decls() const { return decl_text; }
+    QString impls() const { return impl_text; }
+};
 
 class CppGenerator
 {
 public:
-  CppGenerator(const Recognizer &p, Grammar &grammar, Automaton &aut, bool verbose):
-    p (p),
-    grammar (grammar),
-    aut (aut),
-    verbose (verbose),
-    debug_info (false),
-    copyright (false) {}
+    CppGenerator(const Options *p, Grammar *grammar, Automaton *aut, bool verbose):
+        flags (p),
+        grammar (grammar),
+        aut (aut),
+        verbose (verbose),
+        debug_info (false),
+        copyright (false) {}
 
-  void operator () ();
+    void operator () ();
 
-  bool debugInfo () const { return debug_info; }
-  void setDebugInfo (bool d) { debug_info = d; }
+    bool debugInfo () const { return debug_info; }
+    void setDebugInfo (bool d) { debug_info = d; }
 
-  void setCopyright (bool t) { copyright = t; }
-
-private:
-  void generateDecl (QTextStream &out);
-  void generateImpl (QTextStream &out);
-
-  QString debugInfoProt() const;
-  QString copyrightHeader() const;
-  QString privateCopyrightHeader() const;
+    void setCopyright (bool t) { copyright = t; }
 
 private:
-  static QString startIncludeGuard(const QString &fileName);
-  static QString endIncludeGuard(const QString &fileName);
+    void generateDecl (QTextStream &out);
+    void generateImpl (QTextStream &out);
 
-  const Recognizer &p;
-  Grammar &grammar;
-  Automaton &aut;
-  bool verbose;
-  int accept_state;
-  int state_count;
-  int terminal_count;
-  int non_terminal_count;
-  bool debug_info;
-  bool copyright;
-  Compress compressed_action;
-  Compress compressed_goto;
-  QVector<int> count;
-  QVector<int> defgoto;
+    QString debugInfoProt() const;
+    QString copyrightHeader() const;
+    QString privateCopyrightHeader() const;
+
+private:
+    static QString startIncludeGuard(const QString &fileName);
+    static QString endIncludeGuard(const QString &fileName);
+
+    const Options *flags;
+    Grammar *grammar;
+    Automaton *aut;
+    bool verbose;
+    int accept_state;
+    int state_count;
+    int terminal_count;
+    int non_terminal_count;
+    bool debug_info;
+    bool copyright;
+    Compress compressed_action;
+    Compress compressed_goto;
+    QVector<int> count;
+    QVector<int> defgoto;
 };
 
 #endif // CPPGENERATOR_H

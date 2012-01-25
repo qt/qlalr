@@ -1,22 +1,19 @@
-
 TEMPLATE = app
 QT = core
-CONFIG += console
 TARGET = qlalr
 mac:CONFIG -= app_bundle
+CONFIG += console
 
-SOURCES += compress.cpp \
-    cppgenerator.cpp \
-    dotgraph.cpp \
-    lalr.cpp \
-    main.cpp \
-    parsetable.cpp \
-    recognizer.cpp \
-    grammar.cpp
+# Input
+HEADERS += qlalr.h compress.h cppgenerator.h
+SOURCES += qlalr.cpp compress.cpp cppgenerator.cpp qlalr_parser.cpp
 
-HEADERS += compress.h \
-    cppgenerator.h \
-    dotgraph.h \
-    lalr.h \
-    parsetable.h \
-    grammar_p.h
+PARSER_SOURCES = qlalr.qlalr
+OTHER_FILES = qlalr.qlalr
+
+make_parser.name = Generate the front-end
+make_parser.input = qlalr.qlalr
+make_parser.output = qlalr_parser.cpp
+make_parser.commands = qlalr --qt --no-debug --no-lines qlalr.qlalr
+
+QMAKE_EXTRA_TARGETS += make_parser
