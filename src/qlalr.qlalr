@@ -520,9 +520,9 @@ again:
                 qPrintable(flags->filename), startLine);
     } else if (ch == QLatin1Char('/') && (yychar == QLatin1Char(':') ||
                                           yychar == QLatin1Char('.'))) {
+        yytext = lineInfo();
         const QChar terminator = yychar;
         yyinp(); // skip ':' or '.'
-        yytext.clear();
         int startLine = yylineno;
         while (! yychar.isNull()) {
             if (yychar == QLatin1Char('$')) {
