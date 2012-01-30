@@ -56,6 +56,7 @@
 %token IMPL_FILE
 %token EXPECT
 %token EXPECT_RR
+%token GLR_PARSER
 
 %token IDENTIFIER
 %token STRING_LITERAL
@@ -334,6 +335,13 @@ case $rule_number: {
 } break;
 ./
 
+Directive ::= GLR_PARSER;
+/.
+case $rule_number: {
+    flags->glr_parser = true;
+} break;
+./
+
 TokenKind ::= TOKEN ;
 /.
 case $rule_number: {
@@ -492,6 +500,7 @@ again:
         else if (yytext == QLatin1String("right")) return T_RIGHT;
         else if (yytext == QLatin1String("nonassoc")) return T_NONASSOC;
         else if (yytext == QLatin1String("prec")) return T_PREC;
+        else if (yytext == QLatin1String("glr-parser")) return T_GLR_PARSER;
         fprintf(stderr, "unrecognized directive %s\n", qPrintable(yytext));
         return T_ERROR;
     } else if ((ch == QLatin1Char('-') && yychar == QLatin1Char('-')) ||

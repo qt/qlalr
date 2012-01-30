@@ -64,6 +64,7 @@ struct Options {
     bool no_lines: 1;
     bool no_debug: 1;
     bool qt: 1;
+    bool glr_parser: 1;
 
     Options()
         : expected_shift_reduce(0)
@@ -72,6 +73,7 @@ struct Options {
         , no_lines(false)
         , no_debug(false)
         , qt(false)
+        , glr_parser(false)
     {
         table_name = "parser_table";
     }
@@ -124,6 +126,7 @@ private:
     Compress compressed_goto;
     QVector<int> count;
     QVector<int> defgoto;
+    QMap<int, QMultiMap<int, int> > conflicts;
 };
 
 #endif // CPPGENERATOR_H

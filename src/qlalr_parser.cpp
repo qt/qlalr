@@ -76,23 +76,24 @@ public:
     T_IMPL_FILE = 11,
     T_EXPECT = 12,
     T_EXPECT_RR = 13,
-    T_IDENTIFIER = 14,
-    T_STRING_LITERAL = 15,
-    T_SEMICOLON = 16,
-    T_COLON = 17,
-    T_COLON_COLON_EQUAL = 18,
-    T_BAR = 19,
-    T_ERROR = 20,
+    T_GLR_PARSER = 14,
+    T_IDENTIFIER = 15,
+    T_STRING_LITERAL = 16,
+    T_SEMICOLON = 17,
+    T_COLON = 18,
+    T_COLON_COLON_EQUAL = 19,
+    T_BAR = 20,
+    T_ERROR = 21,
 
-    ACCEPT_STATE = 26,
-    RULE_COUNT = 41,
-    STATE_COUNT = 58,
-    TERMINAL_COUNT = 21,
+    ACCEPT_STATE = 27,
+    RULE_COUNT = 42,
+    STATE_COUNT = 59,
+    TERMINAL_COUNT = 22,
     NON_TERMINAL_COUNT = 21,
 
-    GOTO_INDEX_OFFSET = 58,
-    GOTO_INFO_OFFSET = 60,
-    GOTO_CHECK_OFFSET = 60
+    GOTO_INDEX_OFFSET = 59,
+    GOTO_INFO_OFFSET = 83,
+    GOTO_CHECK_OFFSET = 83
   };
 
   static const char  *const    spell [];
@@ -128,73 +129,77 @@ public:
 const char *const parser_table::spell [] = {
   "end of file", 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0};
+  0, 0};
 
 const short parser_table::lhs [] = {
-  21, 22, 23, 24, 24, 25, 25, 26, 26, 27,
-  27, 27, 27, 27, 27, 27, 28, 28, 28, 28,
-  29, 30, 30, 31, 31, 32, 33, 33, 34, 35,
-  36, 36, 37, 38, 38, 38, 38, 39, 40, 40,
-  41};
+  22, 23, 24, 25, 25, 26, 26, 27, 27, 28,
+  28, 28, 28, 28, 28, 28, 28, 29, 29, 29,
+  29, 30, 31, 31, 32, 32, 33, 34, 34, 35,
+  36, 37, 37, 38, 39, 39, 39, 39, 40, 41,
+  41, 42};
 
 const short parser_table::rhs [] = {
   2, 1, 3, 1, 2, 1, 2, 1, 1, 2,
   2, 2, 2, 2, 2, 2, 1, 1, 1, 1,
-  2, 1, 2, 1, 2, 2, 1, 3, 1, 4,
-  1, 1, 1, 0, 1, 2, 1, 2, 1, 2,
-  1};
+  1, 2, 1, 2, 1, 2, 2, 1, 3, 1,
+  4, 1, 1, 1, 0, 1, 2, 1, 2, 1,
+  2, 1};
 
 const short parser_table::action_default [] = {
-  0, 20, 0, 4, 18, 0, 9, 2, 0, 0,
-  8, 0, 0, 0, 0, 17, 0, 0, 19, 12,
-  10, 22, 21, 24, 13, 14, 1, 11, 16, 15,
-  0, 5, 0, 23, 25, 0, 3, 6, 33, 26,
-  32, 34, 31, 7, 37, 0, 0, 39, 27, 35,
-  41, 40, 36, 38, 30, 34, 29, 28};
+  0, 21, 0, 4, 19, 0, 9, 2, 0, 0,
+  8, 0, 0, 0, 0, 18, 0, 0, 20, 17,
+  12, 10, 23, 22, 25, 13, 14, 1, 11, 16,
+  15, 5, 0, 0, 24, 26, 0, 3, 6, 34,
+  27, 33, 35, 32, 7, 38, 0, 0, 40, 28,
+  36, 42, 41, 37, 39, 31, 35, 30, 29};
 
 const short parser_table::goto_default [] = {
-  0, 12, 7, 17, 36, 3, 10, 8, 6, 22,
-  21, 30, 46, 55, 37, 41, 35, 48, 49, 44,
-  47};
+  0, 12, 7, 17, 37, 3, 10, 8, 6, 23,
+  22, 32, 47, 56, 38, 42, 36, 49, 50, 45,
+  48};
 
 const short parser_table::action_index [] = {
-  39, -21, -12, -21, -21, -11, -21, -21, -13, -14,
-  -21, -2, 21, -1, 0, -21, -3, 28, -21, -21,
-  -21, -21, -5, -10, -21, -21, -21, -21, -21, -21,
-  -4, -21, -6, -21, -21, 5, -8, -21, -21, -21,
-  -21, 13, -21, -21, 16, -7, 1, -21, -21, -21,
-  -21, -21, -21, -21, -21, 2, -21, -21,
+  40, -22, -13, -22, -22, -12, -22, -22, -14, -15,
+  -22, -11, 21, -2, -9, -22, -4, 61, -22, -22,
+  -22, -22, -22, -3, -7, -22, -22, -22, -22, -22,
+  -22, -22, -5, -1, -22, -22, 4, -10, -22, -22,
+  -22, -22, 14, -22, -22, 16, -8, 0, -22, -22,
+  -22, -22, -22, -22, -22, -22, 13, -22, -22,
 
   -21, -21, -21, -21, -21, -21, -21, -21, -21, -21,
-  -21, -21, -21, -21, -21, -21, -21, -4, -21, -21,
-  -21, -21, 1, -21, -21, -21, -21, -21, -21, -21,
-  -21, -21, -21, -21, -21, -21, -10, -21, -21, -21,
-  -21, -21, -21, -21, -15, -21, -21, -21, -21, -21,
-  -21, -21, -21, -21, -21, -17, -21, -21};
+  -21, -21, -21, -21, -21, -21, -21, -5, -21, -21,
+  -21, -21, -21, -7, -21, -21, -21, -21, -21, -21,
+  -21, -21, -21, -21, -21, -21, -21, -12, -21, -21,
+  -21, -21, -21, -21, -21, -14, -21, -21, -21, -21,
+  -21, -21, -21, -21, -21, -21, -16, -21, -21};
 
 const short parser_table::action_info [] = {
-  24, 23, 19, 20, 45, 34, 38, 53, 39, 23,
-  38, 29, 25, 27, 28, 45, 50, 54, 45, 0,
-  56, 26, 42, 40, 0, 0, 0, 50, 0, 32,
-  50, 15, 4, 18, 1, 5, 13, 2, 9, 11,
-  16, 14, 15, 4, 18, 1, 5, 13, 2, 9,
-  11, 16, 14, 0, 0, 0, 0, 0, 0, 0,
+  25, 24, 20, 21, 26, 39, 29, 54, 0, 35,
+  39, 30, 24, 28, 40, 46, 46, 55, 46, 0,
+  57, 27, 43, 41, 0, 0, 0, 0, 51, 51,
+  0, 51, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 15, 4, 18, 1, 5, 13, 2,
+  9, 11, 16, 14, 19, 0, 0, 0, 0, 0,
+  0, 0, 33, 0, 15, 4, 18, 1, 5, 13,
+  2, 9, 11, 16, 14, 19, 0, 0, 0, 0,
+  0, 0, 0,
 
-  57, 31, 0, 52, 43, 51, 0, 0, 0, 0,
-  0, 33, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0};
+  31, 58, 44, 34, 53, 0, 52, 0, 0, 0,
+  0, 0, 0, 0, 0, 0};
 
 const short parser_table::action_check [] = {
-  14, 14, 14, 14, 2, 15, 14, 14, 14, 14,
-  14, 14, 14, 14, 14, 2, 14, 16, 2, -1,
-  19, 0, 17, 18, -1, -1, -1, 14, -1, 1,
-  14, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-  12, 13, 3, 4, 5, 6, 7, 8, 9, 10,
-  11, 12, 13, -1, -1, -1, -1, -1, -1, -1,
+  15, 15, 15, 15, 15, 15, 15, 15, -1, 16,
+  15, 15, 15, 15, 15, 2, 2, 17, 2, -1,
+  20, 0, 18, 19, -1, -1, -1, -1, 15, 15,
+  -1, 15, -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, 3, 4, 5, 6, 7, 8, 9,
+  10, 11, 12, 13, 14, -1, -1, -1, -1, -1,
+  -1, -1, 1, -1, 3, 4, 5, 6, 7, 8,
+  9, 10, 11, 12, 13, 14, -1, -1, -1, -1,
+  -1, -1, -1,
 
-  17, 5, -1, 18, 14, 20, -1, -1, -1, -1,
-  -1, 10, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, -1};
+  5, 17, 14, 10, 18, -1, 20, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1};
 
 
 #include "qlalr.h"
@@ -425,55 +430,59 @@ case 15: {
 } break;
 
 case 16: {
+    flags->glr_parser = true;
+} break;
+
+case 17: {
     terminalKind = T_TOKEN;
     assoc = Token::Nonassoc;
 } break;
 
-case 17: {
+case 18: {
     terminalKind = T_LEFT;
     assoc = Token::Left;
     ++prec;
 } break;
 
-case 18: {
+case 19: {
     terminalKind = T_RIGHT;
     assoc = Token::Right;
     ++prec;
 } break;
 
-case 19: {
+case 20: {
     terminalKind = T_NONASSOC;
     assoc = Token::Nonassoc;
     ++prec;
 } break;
 
-case 23: {
+case 24: {
     G.enterToken(string(1), QString(), assoc, terminalKind == T_TOKEN ? -1 : prec);
 } break;
 
-case 24: {
+case 25: {
     G.enterToken(string(1), string(2), assoc, terminalKind == T_TOKEN ? -1 : prec);
 } break;
 
-case 25: {
+case 26: {
     G.setStartSymbol(string(2));
 } break;
 
-case 28: {
+case 29: {
     G.finishRule();
     QString lhs = G.currentRule()->lhs;
     G.startRule(lhs);
 } break;
 
-case 29: {
+case 30: {
     G.finishRule();
 } break;
 
-case 32: {
+case 33: {
     G.startRule(string(1));
 } break;
 
-case 37: {
+case 38: {
     const int precTokenIndex = G.indexOfToken(string(2));
     if (precTokenIndex == -1)
         fprintf(stderr, "warning: undefined token %s\n", qPrintable(string(2)));
@@ -481,7 +490,7 @@ case 37: {
         G.currentRule()->precToken = precTokenIndex;
 } break;
 
-case 40: {
+case 41: {
     G.enterSymbol(string(1));
 } break;
 
@@ -523,6 +532,7 @@ again:
         else if (yytext == QLatin1String("right")) return T_RIGHT;
         else if (yytext == QLatin1String("nonassoc")) return T_NONASSOC;
         else if (yytext == QLatin1String("prec")) return T_PREC;
+        else if (yytext == QLatin1String("glr-parser")) return T_GLR_PARSER;
         fprintf(stderr, "unrecognized directive %s\n", qPrintable(yytext));
         return T_ERROR;
     } else if ((ch == QLatin1Char('-') && yychar == QLatin1Char('-')) ||

@@ -192,6 +192,10 @@ void CppGenerator::operator () ()
 
                     ++reduce_reduce_conflict_count;
 
+                    const int la = grammar->indexOfToken(s);
+                    conflicts[q].insert(la, u);
+                    conflicts[q].insert(la, -r);
+
                     u = qMax (u, -r);
 
                     if (verbose)
@@ -225,6 +229,10 @@ void CppGenerator::operator () ()
 
                     else
                     {
+                        const int la = grammar->indexOfToken(s);
+                        conflicts[q].insert(la, u);
+                        conflicts[q].insert(la, -r);
+
                         ++shift_reduce_conflict_count;
 
                         if (verbose)
@@ -509,8 +517,16 @@ void CppGenerator::generateDecl (QTextStream &out)
         << "  static const short  action_default [];" << endl
         << "  static const short    action_index [];" << endl
         << "  static const short     action_info [];" << endl
-        << "  static const short    action_check [];" << endl
-        << endl
+        << "  static const short    action_check [];" << endl;
+
+    if (flags->glr_parser) {
+        out << "  static const short  conflict_index [];" << endl
+            << "  static const short   conflict_info [];" << endl
+            << "  static const short  conflict_check [];" << endl
+            << "  static const short       conflicts [];" << endl;
+    }
+
+    out << endl
         << "  static inline int nt_action (int state, int nt)" << endl
         << "  {" << endl
         << "    const int yyn = action_index [GOTO_INDEX_OFFSET + state] + nt;" << endl
@@ -528,10 +544,32 @@ void CppGenerator::generateDecl (QTextStream &out)
         << "      return - action_default [state];" << endl
         << endl
         << "    return action_info [yyn];" << endl
-        << "  }" << endl
-        << "};" << endl
+        << "  }" << endl;
+
+    if (flags->glr_parser) {
+        out << endl
+            << "  static inline const short *alternatives (int state, int token)" << endl
+            << "  {" << endl
+            << "    const int yyn = conflict_index [state] + token;" << endl
+            << endl
+            << "    if (yyn < 0 || conflict_check [yyn] != token)" << endl
+            << "      return 0;" << endl
+            << endl
+            << "    return &conflicts [conflict_info [yyn]];" << endl
+            << "  }" << endl;
+    }
+
+    out << "};" << endl
         << endl
         << endl;
+}
+
+static QList<int> stripped(const QList<int> &v)
+{
+    QMap<int, bool> m;
+    foreach (int x, v)
+        m.insert(x, true);
+    return m.keys();
 }
 
 void CppGenerator::generateImpl (QTextStream &out)
@@ -731,4 +769,97 @@ void CppGenerator::generateImpl (QTextStream &out)
         out << ' ' << compressed_goto.check [i];
     }
     out << "};" << endl << endl;
+
+    if (flags->glr_parser) {
+        QList<QList<int> > processed;
+        QList<int> offsets;
+        QList<int> flat;
+        flat.push_back(0);
+
+        QMapIterator<int, QMultiMap<int, int> > it(conflicts);
+        while (it.hasNext()) {
+            it.next();
+            const QMultiMap<int, int> &m = it.value();
+            int last_la = -1;
+            foreach (int la, m.keys()) {
+                if (last_la == la)
+                    continue;
+                last_la = la;
+                const QList<int> v = stripped(m.values(la));
+                int offset = processed.indexOf(v);
+                if (offset == -1) {
+                    offset = flat.size();
+                    flat += v;
+                    flat.append(0);
+                    processed.append(v);
+                    offsets.append(offset);
+                }
+            }
+        }
+        QVector<int> data(state_count * terminal_count);
+        it.toFront();
+        while (it.hasNext()) {
+            it.next();
+            const int q = it.key();
+            const QMultiMap<int, int> m = it.value();
+            int last_la = -1;
+            foreach (int la, m.keys()) {
+                if (la == last_la)
+                    continue;
+                last_la = la;
+                const QList<int> v = stripped(m.values(la));
+                const int idx = processed.indexOf(v);
+                Q_ASSERT(idx != -1);
+                const int offset = offsets.at(idx);
+                data[q * terminal_count + la] = offset;
+            }
+        }
+
+        Compress k;
+        k(data.data(), state_count, terminal_count);
+
+        out << "const short " << flags->table_name << "::conflict_index [] = {";
+        for (int i = 0; i < k.index.size(); ++i) {
+            if (i)
+                out << ',';
+            if (! (i % 10))
+                out << endl << ' ';
+            out << ' ' << k.index.at(i);
+        }
+        out << "};" << endl
+            << endl;
+
+        out << "const short " << flags->table_name << "::conflict_info [] = {";
+        for (int i = 0; i < k.info.size(); ++i) {
+            if (i)
+                out << ',';
+            if (! (i % 10))
+                out << endl << ' ';
+            out << ' ' << k.info.at(i);
+        }
+        out << "};" << endl
+            << endl;
+
+        out << "const short " << flags->table_name << "::conflict_check [] = {";
+        for (int i = 0; i < k.check.size(); ++i) {
+            if (i)
+                out << ',';
+            if (! (i % 10))
+                out << endl << ' ';
+            out << ' ' << k.check.at(i);
+        }
+        out << "};" << endl
+            << endl;
+
+        out << "const short " << flags->table_name << "::conflicts [] = {";
+        for (int i = 0; i < flat.size(); ++i) {
+            if (i)
+                out << ',';
+            if (! (i % 10))
+                out << endl << ' ';
+            out << ' ' << flat.at(i);
+        }
+        out << "};" << endl
+            << endl;
+    }
 }
