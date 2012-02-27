@@ -278,7 +278,7 @@ struct Parser: parser_table {
             return flags->table_name.toLower() + QLatin1String("_p.h");
         else if (var == QLatin1String("rule") && ! G.rules.isEmpty())
             return G.currentRule()->lhs;
-        expanded = false;
+        *expanded = false;
         return var;
     }
 
