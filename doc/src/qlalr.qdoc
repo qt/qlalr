@@ -33,17 +33,17 @@
     \section1 Table of Contents
 
     \list
-    \o \l{qlalr - Writing Grammars}
+    \li \l{qlalr - Writing Grammars}
       \tableofcontents{1 qlalr - Writing Grammars}
-    \o \l{qlalr - Generating Code from Grammar Specifications}
+    \li \l{qlalr - Generating Code from Grammar Specifications}
       \tableofcontents{1 qlalr - Generating Code from Grammar Specifications}
-    \o \l{qlalr - qlalr Grammar Specification}
+    \li \l{qlalr - qlalr Grammar Specification}
       \tableofcontents{1 qlalr - qlalr Grammar Specification}
-    \o \l{qlalr - Handling Conflicts}
+    \li \l{qlalr - Handling Conflicts}
       \tableofcontents{1 qlalr - Handling Conflicts}
-    \o \l{qlalr - Error Handling and Recovery}
+    \li \l{qlalr - Error Handling and Recovery}
       \tableofcontents{1 qlalr - Error Handling and Recovery}
-    \o \l{qlalr - References to External Information}
+    \li \l{qlalr - References to External Information}
       \tableofcontents{1 qlalr - References to External Information}
     \endlist
 

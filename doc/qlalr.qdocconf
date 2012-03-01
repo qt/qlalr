@@ -17,9 +17,9 @@ outputdir               = html
 codeindent              = 1
 extraimages.HTML        = qt-logo
 
-macro.key               = "\\bold"
-macro.menu              = "\\bold"
-macro.gui               = "\\bold"
+macro.key               = "\\b"
+macro.menu              = "\\b"
+macro.gui               = "\\b"
 macro.reg.HTML          = "<sup>&reg;</sup>"
 macro.raisedaster.HTML  = "<sup>*</sup>"
 macro.BR.HTML           = "<br />"
