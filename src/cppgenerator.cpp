@@ -54,7 +54,7 @@ QString CppGenerator::copyrightHeader() const
     "** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).\n"
     "** Contact: http://www.qt-project.org/legal\n"
     "**\n"
-    "** This file is part of the QLALR module of the Qt Toolkit.\n"
+    "** This file is part of the Qt Toolkit.\n"
     "**\n"
     "** $QT_BEGIN_LICENSE:LGPL$\n"
     "** Commercial License Usage\n"
