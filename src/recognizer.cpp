@@ -1,9 +1,10 @@
+
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the utils of the Qt Toolkit.
+** This file is part of the QLALR project on Qt Labs.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -83,7 +84,7 @@ int Recognizer::nextToken()
  Lagain:
   while (ch.isSpace ())
     inp ();
-  
+
   if (ch.isNull ())
     return EOF_SYMBOL;
 
@@ -216,8 +217,8 @@ int Recognizer::nextToken()
               _M_current_value = text;
               return (token = DECL);
             }
-	  else
-	    text += QLatin1String (":/");
+          else
+            text += QLatin1String (":/");
         }
     }
 
@@ -254,8 +255,8 @@ int Recognizer::nextToken()
               _M_current_value = text;
               return (token = IMPL);
             }
-	  else
-	    text += QLatin1String ("");
+          else
+            text += QLatin1String ("");
         }
     }
 
@@ -475,7 +476,7 @@ case 43: {
 
           state_stack [tos] = nt_action (act, lhs [r] - TERMINAL_COUNT);
         }
-      
+
       else
         {
           break;

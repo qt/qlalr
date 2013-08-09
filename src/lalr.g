@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 --
--- Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+-- Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 -- Contact: http://www.qt-project.org/legal
 --
 -- This file is part of the QLALR project on Qt Labs.
@@ -77,7 +77,7 @@
 /:
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QLALR project on Qt Labs.
@@ -150,10 +150,10 @@ protected: // scanner
   {
     if (_M_currentChar != _M_lastChar)
       {
-	ch = *_M_currentChar++;
-	
-	if (ch == QLatin1Char('\n'))
-	  ++_M_line;
+        ch = *_M_currentChar++;
+
+        if (ch == QLatin1Char('\n'))
+          ++_M_line;
       }
     else
       ch = QChar();
@@ -191,7 +191,7 @@ protected:
 /.
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QLALR project on Qt Labs.
@@ -274,7 +274,7 @@ int Recognizer::nextToken()
  Lagain:
   while (ch.isSpace ())
     inp ();
-  
+
   if (ch.isNull ())
     return EOF_SYMBOL;
 
@@ -407,8 +407,8 @@ int Recognizer::nextToken()
               _M_current_value = text;
               return (token = DECL);
             }
-	  else
-	    text += QLatin1String (":/");
+          else
+            text += QLatin1String (":/");
         }
     }
 
@@ -445,8 +445,8 @@ int Recognizer::nextToken()
               _M_current_value = text;
               return (token = IMPL);
             }
-	  else
-	    text += QLatin1String ("./");
+          else
+            text += QLatin1String ("./");
         }
     }
 
@@ -786,7 +786,7 @@ case $rule_number: {
 
           state_stack [tos] = nt_action (act, lhs [r] - TERMINAL_COUNT);
         }
-      
+
       else
         {
           break;

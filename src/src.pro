@@ -20,3 +20,5 @@ HEADERS += compress.h \
     lalr.h \
     parsetable.h \
     grammar_p.h
+
+OTHER_FILES = lalr.g
