@@ -40,7 +40,10 @@
 ****************************************************************************/
 
 
-#include <QtCore/QtCore>
+#include <QtCore/qbitarray.h>
+#include <QtCore/qtextstream.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qmap.h>
 
 #include "cppgenerator.h"
 #include "lalr.h"
